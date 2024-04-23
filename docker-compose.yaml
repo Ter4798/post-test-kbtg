@@ -1,4 +1,9 @@
+version: '3'
 services:
+  web:
+    build: .
+    ports:
+      - "1323:1323"  
   postgres:
     image: postgres:16
     environment:
@@ -7,3 +12,8 @@ services:
       POSTGRES_DB: ktaxes
     ports:
       - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      
+volumes:
+  postgres-data:

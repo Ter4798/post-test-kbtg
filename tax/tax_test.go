@@ -63,24 +63,6 @@ func TestCalculateGraduatedTax(t *testing.T) {
 	}
 }
 
-func TestValidateRequest(t *testing.T) {
-	testCases := []struct {
-		request       Request
-		expectedError error
-	}{
-		{Request{TotalIncome: 100000.0}, nil},
-		{Request{TotalIncome: 0.0}, errors.New("totalIncome must be greater than zero")},
-		{Request{TotalIncome: -50000.0}, errors.New("totalIncome must be greater than zero")},
-	}
-
-	for _, tc := range testCases {
-		err := ValidateRequest(&tc.request)
-		if (err == nil && tc.expectedError != nil) || (err != nil && err.Error() != tc.expectedError.Error()) {
-			t.Errorf("ValidateRequest(%+v) returned error %v, expected %v", tc.request, err, tc.expectedError)
-		}
-	}
-}
-
 func TestCalculateNetTaxAndRefund(t *testing.T) {
 	testCases := []struct {
 		tax      float64
@@ -103,6 +85,51 @@ func TestCalculateNetTaxAndRefund(t *testing.T) {
 		netTax, taxRefund := calculateNetTaxAndRefund(tc.tax, tc.wht)
 		if netTax != tc.expected[0] || taxRefund != tc.expected[1] {
 			t.Errorf("Expected %v, %v but got %v, %v", tc.expected[0], tc.expected[1], netTax, taxRefund)
+		}
+	}
+}
+
+func TestValidateTotalIncome(t *testing.T) {
+	testCases := []struct {
+		request       Request
+		expectedError error
+	}{
+		{Request{TotalIncome: 100000.0}, nil},
+		{Request{TotalIncome: 0.0}, errors.New("totalIncome must be greater than zero")},
+		{Request{TotalIncome: -50000.0}, errors.New("totalIncome must be greater than zero")},
+	}
+
+	for _, tc := range testCases {
+		err := validateTotalIncome(&tc.request)
+		if (err == nil && tc.expectedError != nil) || (err != nil && err.Error() != tc.expectedError.Error()) {
+			t.Errorf("validateTotalIncome(%+v) returned error %v, expected %v", tc.request, err, tc.expectedError)
+		}
+	}
+}
+
+func TestValidateWHT(t *testing.T) {
+	testCases := []struct {
+		request       Request
+		expectedError error
+	}{
+		{Request{
+			WHT:         100,
+			TotalIncome: 1000,
+		}, nil},
+		{Request{
+			WHT:         -100,
+			TotalIncome: 1000,
+		}, errors.New("invalid WHT must be greater than zero and morn than TotalIncome")},
+		{Request{
+			WHT:         2000,
+			TotalIncome: 1000,
+		}, errors.New("invalid WHT must be greater than zero and morn than TotalIncome")},
+	}
+
+	for _, tc := range testCases {
+		err := validateWHT(&tc.request)
+		if (err == nil && tc.expectedError != nil) || (err != nil && err.Error() != tc.expectedError.Error()) {
+			t.Errorf("validateWHT(%+v) returned error %v, expected %v", tc.request, err, tc.expectedError)
 		}
 	}
 }

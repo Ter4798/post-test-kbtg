@@ -14,7 +14,6 @@ import (
 func main() {
 	e := echo.New()
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
-	fmt.Printf("%s", port)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, Go Bootcamp!")

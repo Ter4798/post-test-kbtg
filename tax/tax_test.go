@@ -5,6 +5,80 @@ import (
 	"testing"
 )
 
+func TestCalculateDeductions(t *testing.T) {
+	testCases := []struct {
+		name           string
+		allowances     []Allowance
+		maxDonation    float64
+		maxKReceipt    float64
+		expectedResult float64
+	}{
+		{
+			name:           "No allowances",
+			allowances:     []Allowance{},
+			maxDonation:    100000,
+			maxKReceipt:    50000,
+			expectedResult: 0,
+		},
+		{
+			name: "Single donation within limit",
+			allowances: []Allowance{
+				{AllowanceType: "donation", Amount: 50000},
+			},
+			maxDonation:    100000,
+			maxKReceipt:    50000,
+			expectedResult: 50000,
+		},
+		{
+			name: "Single donation exceeding limit",
+			allowances: []Allowance{
+				{AllowanceType: "donation", Amount: 150000},
+			},
+			maxDonation:    100000,
+			maxKReceipt:    50000,
+			expectedResult: 100000,
+		},
+		{
+			name: "Single k-receipt within limit",
+			allowances: []Allowance{
+				{AllowanceType: "k-receipt", Amount: 30000},
+			},
+			maxDonation:    100000,
+			maxKReceipt:    50000,
+			expectedResult: 30000,
+		},
+		{
+			name: "Single k-receipt exceeding limit",
+			allowances: []Allowance{
+				{AllowanceType: "k-receipt", Amount: 60000},
+			},
+			maxDonation:    100000,
+			maxKReceipt:    50000,
+			expectedResult: 50000,
+		},
+		{
+			name: "Multiple allowances",
+			allowances: []Allowance{
+				{AllowanceType: "donation", Amount: 80000},
+				{AllowanceType: "k-receipt", Amount: 40000},
+				{AllowanceType: "donation", Amount: 30000},
+			},
+			maxDonation:    100000,
+			maxKReceipt:    50000,
+			expectedResult: 150000,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := calculateDeductions(tc.allowances, tc.maxDonation, tc.maxKReceipt)
+			if result != tc.expectedResult {
+				t.Errorf("Expected %f, got %f", tc.expectedResult, result)
+			}
+		})
+	}
+}
+
 func TestCalculateTaxableIncome(t *testing.T) {
 	testCases := []struct {
 		totalIncome    float64

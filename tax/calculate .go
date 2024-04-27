@@ -30,9 +30,22 @@ func calculateGraduatedTax(taxableIncome float64) float64 {
 	return tax
 }
 
-func CalculateTax(totalIncome float64) float64 {
+func calculateNetTaxAndRefund(tax, wht float64) (float64, float64) {
+	taxRefund := 0.0
+	if tax < wht {
+		taxRefund = wht - tax
+		tax = 0
+	} else {
+		tax = tax - wht
+	}
+
+	return tax, taxRefund
+}
+
+func CalculateTax(totalIncome float64, wht float64) (float64, float64) {
 	totalDeduction := calculateDeductions()
 	taxableIncome := calculateTaxableIncome(totalIncome, totalDeduction)
 	tax := calculateGraduatedTax(taxableIncome)
-	return tax
+	netTax, taxRefund := calculateNetTaxAndRefund(tax, wht)
+	return netTax, taxRefund
 }

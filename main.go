@@ -27,7 +27,7 @@ func main() {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		t, taxRefund := tax.CalculateTax(req.TotalIncome, req.WHT)
+		t, taxRefund := tax.CalculateTax(req.TotalIncome, req.WHT, req.Allowances)
 		resp := &tax.Response{
 			Tax: t,
 		}

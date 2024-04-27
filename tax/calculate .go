@@ -1,21 +1,20 @@
 package tax
 
-func calculateDeductions(allowances []Allowance) float64 {
+func calculateDeductions(allowances []Allowance, maxDonation float64, maxKReceipt float64) float64 {
 	var totalDeduction float64
-	personalAllowance := 60000.0
-	totalDeduction += personalAllowance
+
 	for _, allowance := range allowances {
 		switch allowance.AllowanceType {
 		case "donation":
 			deduction := allowance.Amount
-			if deduction > 100000 {
-				deduction = 100000
+			if deduction > maxDonation {
+				deduction = maxDonation
 			}
 			totalDeduction += deduction
 		case "k-receipt":
 			deduction := allowance.Amount
-			if deduction > 50000 {
-				deduction = 50000
+			if deduction > maxKReceipt {
+				deduction = maxKReceipt
 			}
 			totalDeduction += deduction
 		}
@@ -59,7 +58,10 @@ func calculateNetTaxAndRefund(tax, wht float64) (float64, float64) {
 }
 
 func CalculateTax(totalIncome float64, wht float64, allowances []Allowance) (float64, float64) {
-	totalDeduction := calculateDeductions(allowances)
+	personalAllowance := 60000.0
+	maxDonation := 100000.0
+	maxKReceipt := 50000.0
+	totalDeduction := calculateDeductions(allowances, maxDonation, maxKReceipt) + personalAllowance
 	taxableIncome := calculateTaxableIncome(totalIncome, totalDeduction)
 	tax := calculateGraduatedTax(taxableIncome)
 	netTax, taxRefund := calculateNetTaxAndRefund(tax, wht)

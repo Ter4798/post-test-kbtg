@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/Ter4798/post-test-kbtg/tax"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,8 +16,18 @@ func main() {
 	e := echo.New()
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello, Go Bootcamp!")
+	e.POST("/tax/calculations", func(c echo.Context) error {
+		req := new(tax.Request)
+		if err := c.Bind(req); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err)
+		}
+
+		t := tax.CalculateTax(req.TotalIncome)
+		resp := &tax.Response{
+			Tax: t,
+		}
+
+		return c.JSON(http.StatusOK, resp)
 	})
 
 	go func() {

@@ -27,9 +27,12 @@ func main() {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		t := tax.CalculateTax(req.TotalIncome)
+		t, taxRefund := tax.CalculateTax(req.TotalIncome, req.WHT)
 		resp := &tax.Response{
 			Tax: t,
+		}
+		if taxRefund > 0 {
+			resp.TaxRefund = taxRefund
 		}
 
 		return c.JSON(http.StatusOK, resp)

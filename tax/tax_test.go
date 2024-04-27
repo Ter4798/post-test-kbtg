@@ -80,3 +80,29 @@ func TestValidateRequest(t *testing.T) {
 		}
 	}
 }
+
+func TestCalculateNetTaxAndRefund(t *testing.T) {
+	testCases := []struct {
+		tax      float64
+		wht      float64
+		expected []float64
+	}{
+		{
+			tax:      100.0,
+			wht:      20.0,
+			expected: []float64{80.0, 0.0},
+		},
+		{
+			tax:      50.0,
+			wht:      50.0,
+			expected: []float64{0.0, 0.0},
+		},
+	}
+
+	for _, tc := range testCases {
+		netTax, taxRefund := calculateNetTaxAndRefund(tc.tax, tc.wht)
+		if netTax != tc.expected[0] || taxRefund != tc.expected[1] {
+			t.Errorf("Expected %v, %v but got %v, %v", tc.expected[0], tc.expected[1], netTax, taxRefund)
+		}
+	}
+}

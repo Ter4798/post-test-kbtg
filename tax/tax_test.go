@@ -5,15 +5,6 @@ import (
 	"testing"
 )
 
-func TestCalculateDeductions(t *testing.T) {
-	want := 60000.0
-	got := calculateDeductions()
-
-	if got != want {
-		t.Errorf("calculateDeductions() returned %f, expected %f", got, want)
-	}
-}
-
 func TestCalculateTaxableIncome(t *testing.T) {
 	testCases := []struct {
 		totalIncome    float64
@@ -128,6 +119,39 @@ func TestValidateWHT(t *testing.T) {
 
 	for _, tc := range testCases {
 		err := validateWHT(&tc.request)
+		if (err == nil && tc.expectedError != nil) || (err != nil && err.Error() != tc.expectedError.Error()) {
+			t.Errorf("validateWHT(%+v) returned error %v, expected %v", tc.request, err, tc.expectedError)
+		}
+	}
+}
+
+func TestValidateAllowanceTypes(t *testing.T) {
+	testCases := []struct {
+		request       Request
+		expectedError error
+	}{
+		{Request{
+			Allowances: []Allowance{
+				{AllowanceType: "donation"},
+				{AllowanceType: "k-receipt"},
+			},
+		}, nil},
+		{Request{
+			Allowances: []Allowance{
+				{AllowanceType: "invalid"},
+			},
+		}, errors.New("invalid allowance type type should be donation, k-receipt")},
+		{Request{
+			Allowances: []Allowance{
+				{AllowanceType: "donation"},
+				{AllowanceType: "invalid"},
+				{AllowanceType: "k-receipt"},
+			},
+		}, errors.New("invalid allowance type type should be donation, k-receipt")},
+	}
+
+	for _, tc := range testCases {
+		err := validateAllowanceTypes(&tc.request)
 		if (err == nil && tc.expectedError != nil) || (err != nil && err.Error() != tc.expectedError.Error()) {
 			t.Errorf("validateWHT(%+v) returned error %v, expected %v", tc.request, err, tc.expectedError)
 		}

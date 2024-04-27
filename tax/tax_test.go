@@ -1,6 +1,7 @@
 package tax
 
 import (
+	"errors"
 	"testing"
 )
 
@@ -58,6 +59,24 @@ func TestCalculateGraduatedTax(t *testing.T) {
 		got := calculateGraduatedTax(tc.taxableIncome)
 		if got != tc.want {
 			t.Errorf("calculateGraduatedTax(%f) returned %f, expected %f", tc.taxableIncome, got, tc.want)
+		}
+	}
+}
+
+func TestValidateRequest(t *testing.T) {
+	testCases := []struct {
+		request       Request
+		expectedError error
+	}{
+		{Request{TotalIncome: 100000.0}, nil},
+		{Request{TotalIncome: 0.0}, errors.New("totalIncome must be greater than zero")},
+		{Request{TotalIncome: -50000.0}, errors.New("totalIncome must be greater than zero")},
+	}
+
+	for _, tc := range testCases {
+		err := ValidateRequest(&tc.request)
+		if (err == nil && tc.expectedError != nil) || (err != nil && err.Error() != tc.expectedError.Error()) {
+			t.Errorf("ValidateRequest(%+v) returned error %v, expected %v", tc.request, err, tc.expectedError)
 		}
 	}
 }

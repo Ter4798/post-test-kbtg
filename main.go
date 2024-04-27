@@ -18,7 +18,12 @@ func main() {
 
 	e.POST("/tax/calculations", func(c echo.Context) error {
 		req := new(tax.Request)
+
 		if err := c.Bind(req); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err)
+		}
+
+		if err := tax.ValidateRequest(req); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 

@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func HandlePersonalDeductions(db *sql.DB) echo.HandlerFunc {
+func HandlePersonalCalculationsCSV(db *sql.DB) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		file, err := c.FormFile("taxFile")
 		if err != nil {

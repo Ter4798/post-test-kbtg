@@ -69,7 +69,7 @@ func main() {
 
 	e.POST("/admin/deductions/k-receipt", admin.UpdateKReceiptAllowance(db), auth.BasicAuth(os.Getenv("ADMIN_USERNAME"), os.Getenv("ADMIN_PASSWORD")))
 
-	e.POST("/tax/calculations/upload-csv", tax.HandlePersonalDeductions(db))
+	e.POST("/tax/calculations/upload-csv", tax.HandlePersonalCalculationsCSV(db))
 
 	go func() {
 		if err := e.Start(port); err != nil && err != http.ErrServerClosed {

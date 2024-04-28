@@ -37,11 +37,10 @@ func calculateGraduatedTax(taxableIncome float64) float64 {
 	case taxableIncome <= 1000000:
 		tax = 35000 + 0.15*(taxableIncome-500000)
 	case taxableIncome <= 2000000:
-		tax = 135000 + 0.2*(taxableIncome-1000000)
+		tax = 110000 + 0.2*(taxableIncome-1000000)
 	default:
-		tax = 535000 + 0.35*(taxableIncome-2000000)
+		tax = 310000 + 0.35*(taxableIncome-2000000)
 	}
-
 	return tax
 }
 

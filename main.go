@@ -67,8 +67,6 @@ func main() {
 
 	e.POST("/admin/deductions/personal", admin.UpdatePersonalAllowance(db), auth.BasicAuth(os.Getenv("ADMIN_USERNAME"), os.Getenv("ADMIN_PASSWORD")))
 
-	e.POST("/tax/calculations/upload-csv", tax.HandlePersonalDeductions(db))
-
 	go func() {
 		if err := e.Start(port); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("ListenAndServe error: ", err)

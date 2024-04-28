@@ -14,6 +14,10 @@ func UpdatePersonalAllowance(db *sql.DB) echo.HandlerFunc {
 			return err
 		}
 
+		if err := validatePersonalAllowance(&req); err != nil {
+			return echo.NewHTTPError(http.StatusBadRequest, err)
+		}
+
 		var exists bool
 		err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM taxdeduction WHERE name = 'personalAllowance')").Scan(&exists)
 		if err != nil {

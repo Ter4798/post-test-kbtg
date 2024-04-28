@@ -231,3 +231,78 @@ func TestValidateAllowanceTypes(t *testing.T) {
 		}
 	}
 }
+
+func TestCalculateTaxLevels(t *testing.T) {
+	testCases := []struct {
+		name          string
+		taxableIncome float64
+		expected      []TaxLevel
+	}{
+		{
+			name:          "No tax",
+			taxableIncome: 100000,
+			expected: []TaxLevel{
+				{"0-150,000", 0.0},
+				{"150,001-500,000", 0.0},
+				{"500,001-1,000,000", 0.0},
+				{"1,000,001-2,000,000", 0.0},
+				{"2,000,001 ขึ้นไป", 0.0},
+			},
+		},
+		{
+			name:          "First tax bracket",
+			taxableIncome: 300000,
+			expected: []TaxLevel{
+				{"0-150,000", 0.0},
+				{"150,001-500,000", 15000.0},
+				{"500,001-1,000,000", 0.0},
+				{"1,000,001-2,000,000", 0.0},
+				{"2,000,001 ขึ้นไป", 0.0},
+			},
+		},
+		{
+			name:          "Second tax bracket",
+			taxableIncome: 750000,
+			expected: []TaxLevel{
+				{"0-150,000", 0.0},
+				{"150,001-500,000", 35000.0},
+				{"500,001-1,000,000", 37500.0},
+				{"1,000,001-2,000,000", 0.0},
+				{"2,000,001 ขึ้นไป", 0.0},
+			},
+		},
+		{
+			name:          "Third tax bracket",
+			taxableIncome: 1500000,
+			expected: []TaxLevel{
+				{"0-150,000", 0.0},
+				{"150,001-500,000", 35000.0},
+				{"500,001-1,000,000", 75000.0},
+				{"1,000,001-2,000,000", 100000.0},
+				{"2,000,001 ขึ้นไป", 0.0},
+			},
+		},
+		{
+			name:          "Fourth tax bracket",
+			taxableIncome: 3000000,
+			expected: []TaxLevel{
+				{"0-150,000", 0.0},
+				{"150,001-500,000", 35000.0},
+				{"500,001-1,000,000", 75000.0},
+				{"1,000,001-2,000,000", 200000.0},
+				{"2,000,001 ขึ้นไป", 350000.0},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := calculateTaxLevels(tc.taxableIncome)
+			for i, level := range result {
+				if level.Level != tc.expected[i].Level || level.Tax != tc.expected[i].Tax {
+					t.Errorf("Incorrect tax level calculation. Expected: %v, Got: %v", tc.expected[i], level)
+				}
+			}
+		})
+	}
+}

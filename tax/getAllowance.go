@@ -22,3 +22,22 @@ func getPersonalAllowance(db *sql.DB) (float64, error) {
 
 	return personalAllowance, nil
 }
+
+func getKReceiptAllowance(db *sql.DB) (float64, error) {
+	var kReceiptAllowance float64 = 50000.0
+	var exists bool
+
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM taxdeduction WHERE name = 'kReceiptAllowance')").Scan(&exists)
+	if err != nil {
+		return 0, err
+	}
+
+	if exists {
+		err = db.QueryRow("SELECT amount FROM taxdeduction WHERE name = 'kReceiptAllowance'").Scan(&kReceiptAllowance)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return kReceiptAllowance, nil
+}

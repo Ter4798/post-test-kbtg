@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/Ter4798/post-test-kbtg/auth"
+
 	"database/sql"
 
 	_ "github.com/lib/pq"
@@ -17,19 +19,9 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// const (
-// 	host     = "postgres"
-// 	portp    = 5432
-// 	user     = "postgres"
-// 	password = "postgres"
-// 	dbname   = "ktaxes"
-// )
-
 func main() {
 
-	// psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, portp, user, password, dbname)
-	connStr := "user=postgres password=postgres host=localhost port=5432 sslmode=disable dbname=ktaxes"
-	db, err := sql.Open("postgres", connStr)
+	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		panic(err)
 	}
@@ -43,8 +35,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Print("Connect DB")
 
 	e := echo.New()
 	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
@@ -75,7 +65,7 @@ func main() {
 		return c.JSON(http.StatusOK, resp)
 	})
 
-	e.POST("/admin/deductions/personal", admin.UpdatePersonalAllowance(db))
+	e.POST("/admin/deductions/personal", admin.UpdatePersonalAllowance(db), auth.BasicAuth(os.Getenv("ADMIN_USERNAME"), os.Getenv("ADMIN_PASSWORD")))
 
 	go func() {
 		if err := e.Start(port); err != nil && err != http.ErrServerClosed {
@@ -95,4 +85,5 @@ func main() {
 	}
 
 	fmt.Println("Shutting down the server")
+
 }

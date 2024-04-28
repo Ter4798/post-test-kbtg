@@ -67,6 +67,8 @@ func main() {
 
 	e.POST("/admin/deductions/personal", admin.UpdatePersonalAllowance(db), auth.BasicAuth(os.Getenv("ADMIN_USERNAME"), os.Getenv("ADMIN_PASSWORD")))
 
+	e.POST("/admin/deductions/k-receipt", admin.UpdateKReceiptAllowance(db), auth.BasicAuth(os.Getenv("ADMIN_USERNAME"), os.Getenv("ADMIN_PASSWORD")))
+
 	e.POST("/tax/calculations/upload-csv", tax.HandlePersonalDeductions(db))
 
 	go func() {

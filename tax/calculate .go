@@ -97,8 +97,12 @@ func CalculateTax(db *sql.DB, totalIncome float64, wht float64, allowances []All
 		return 0, 0, nil, err
 	}
 
+	maxKReceipt, err := getKReceiptAllowance(db)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
 	maxDonation := 100000.0
-	maxKReceipt := 50000.0
 
 	totalDeduction := calculateDeductions(allowances, maxDonation, maxKReceipt) + personalAllowance
 

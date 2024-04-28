@@ -1,5 +1,9 @@
 package tax
 
+import (
+	"database/sql"
+)
+
 func calculateDeductions(allowances []Allowance, maxDonation float64, maxKReceipt float64) float64 {
 	var totalDeduction float64
 
@@ -87,14 +91,24 @@ func calculateTaxLevels(taxableIncome float64) []TaxLevel {
 	return taxLevels
 }
 
-func CalculateTax(totalIncome float64, wht float64, allowances []Allowance) (float64, float64, []TaxLevel) {
-	personalAllowance := 60000.0
+func CalculateTax(db *sql.DB, totalIncome float64, wht float64, allowances []Allowance) (float64, float64, []TaxLevel, error) {
+	personalAllowance, err := getPersonalAllowance(db)
+	if err != nil {
+		return 0, 0, nil, err
+	}
+
 	maxDonation := 100000.0
 	maxKReceipt := 50000.0
+
 	totalDeduction := calculateDeductions(allowances, maxDonation, maxKReceipt) + personalAllowance
+
 	taxableIncome := calculateTaxableIncome(totalIncome, totalDeduction)
+
 	tax := calculateGraduatedTax(taxableIncome)
+
 	taxLevels := calculateTaxLevels(taxableIncome)
+
 	netTax, taxRefund := calculateNetTaxAndRefund(tax, wht)
-	return netTax, taxRefund, taxLevels
+
+	return netTax, taxRefund, taxLevels, nil
 }
